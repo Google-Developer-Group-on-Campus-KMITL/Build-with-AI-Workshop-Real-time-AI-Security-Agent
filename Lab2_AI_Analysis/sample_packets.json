@@ -1,0 +1,58 @@
+[
+  {
+    "src_ip": "192.168.1.100",
+    "dst_ip": "127.0.0.1",
+    "protocol": "ICMP",
+    "dst_port": null,
+    "payload": null
+  },
+  {
+    "src_ip": "192.168.1.100",
+    "dst_ip": "127.0.0.1",
+    "protocol": "ICMP",
+    "dst_port": null,
+    "payload": null
+  },
+  {
+    "src_ip": "192.168.1.100",
+    "dst_ip": "127.0.0.1",
+    "protocol": "ICMP",
+    "dst_port": null,
+    "payload": null
+  },
+  {
+    "src_ip": "10.10.10.50",
+    "dst_ip": "127.0.0.1",
+    "protocol": "TCP",
+    "dst_port": 22,
+    "payload": null
+  },
+  {
+    "src_ip": "10.10.10.50",
+    "dst_ip": "127.0.0.1",
+    "protocol": "TCP",
+    "dst_port": 80,
+    "payload": null
+  },
+  {
+    "src_ip": "10.10.10.50",
+    "dst_ip": "127.0.0.1",
+    "protocol": "TCP",
+    "dst_port": 443,
+    "payload": null
+  },
+  {
+    "src_ip": "10.10.10.50",
+    "dst_ip": "127.0.0.1",
+    "protocol": "TCP",
+    "dst_port": 3306,
+    "payload": null
+  },
+  {
+    "src_ip": "172.16.0.9",
+    "dst_ip": "127.0.0.1",
+    "protocol": "TCP",
+    "dst_port": 80,
+    "payload": "GET /?q=' OR 1=1 -- HTTP/1.1\r\nHost: 127.0.0.1\r\n\r\n"
+  }
+]
