@@ -1,9 +1,14 @@
+"""
+import standard lib(s) for Traffic Simulator (ICMP Flood, Port Scan, SQL Injection)
+"""
+
 import random
 import socket
 import sys
 import time
-
+import subprocess
 import requests
+
 from scapy.all import ICMP, IP, send
 
 TARGET_IP = "127.0.0.1"
@@ -13,10 +18,15 @@ HTTP_URL = f"http://{TARGET_IP}/?q=' OR 1=1 --"
 
 def ping_flood():
     print("[INFO] Generating Ping Flood...", file=sys.stderr)
-    for _ in range(20):
-        pkt = IP(dst=TARGET_IP) / ICMP()
-        send(pkt, verbose=False)
-    print("[INFO] Ping Flood complete — sent 20 ICMP packets.", file=sys.stderr)
+    try:
+        subprocess.run(
+            ["ping", "-c", "20", "-i", "0.2", TARGET_IP],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
+        print("[INFO] Ping Flood complete — sent 20 ICMP packets.", file=sys.stderr)
+    except Exception as exc:
+        print(f"[ERROR] Ping Flood failed: {exc}", file=sys.stderr)
 
 
 def port_scan():
