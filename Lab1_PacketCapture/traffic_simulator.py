@@ -15,7 +15,7 @@ def ping_flood():
     print("[INFO] Generating Ping Flood...", file=sys.stderr)
     for _ in range(20):
         pkt = IP(dst=TARGET_IP) / ICMP()
-        send(pkt, verbose=False)
+        send(pkt, iface="lo", verbose=False)
     print("[INFO] Ping Flood complete — sent 20 ICMP packets.", file=sys.stderr)
 
 
