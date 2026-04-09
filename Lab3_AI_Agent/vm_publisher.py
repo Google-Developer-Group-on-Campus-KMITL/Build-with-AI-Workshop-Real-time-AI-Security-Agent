@@ -168,7 +168,7 @@ def main():
         help="Use live scapy packet capture instead of mock generator (requires root)",
     )
     parser.add_argument(
-        "--interval", type=float, default=2.0,
+        "--interval", type=float, default=15.0,
         help="Seconds between mock packets (default: 2.0)",
     )
     args = parser.parse_args()
