@@ -110,7 +110,7 @@ def main():
         print("[!] No packet records found. Exiting.", file=sys.stderr)
         sys.exit(1)
 
-    SELECTED_INSTRUCTION = ZERO_SYSTEM_INSTRUCTION 
+    SELECTED_INSTRUCTION = FEW_SYSTEM_INSTRUCTION 
     MODE_NAME = "FEW-SHOT" if SELECTED_INSTRUCTION == FEW_SYSTEM_INSTRUCTION else "ZERO-SHOT"
 
     print(f"[*] Mode: {MODE_NAME}")
