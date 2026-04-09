@@ -69,12 +69,10 @@ echo "[*] Creating Pub/Sub topic: $TOPIC"
 gcloud pubsub topics create "$TOPIC" 2>/dev/null || true
 
 # ---------------------------------------------------------------------------
-# 5. Create Cloud Armor Security Policy (default: allow all)
+# 5. Firewall — AI Agent will create deny rules dynamically via VPC Firewall
 # ---------------------------------------------------------------------------
-ARMOR_POLICY="ai-blocked-ips"
-echo "[*] Creating Cloud Armor policy: $ARMOR_POLICY"
-gcloud compute security-policies create "$ARMOR_POLICY" \
-    --description="AI Agent managed block list" 2>/dev/null || true
+echo "[*] VPC Firewall: AI agent will create 'ai-block-*' deny rules at runtime."
+echo "    (No pre-creation needed — firewall rules have no quota like Cloud Armor.)"
 
 # ---------------------------------------------------------------------------
 # Done
@@ -87,7 +85,7 @@ echo ""
 echo "  Project          : $PROJECT_ID"
 echo "  Service Account  : $SA_EMAIL"
 echo "  Pub/Sub Topic    : $TOPIC"
-echo "  Cloud Armor      : $ARMOR_POLICY"
+echo "  Firewall         : AI agent creates 'ai-block-*' rules dynamically"
 echo ""
 echo "  IMPORTANT: You must manually initialize Firestore"
 echo "  in Native mode via the Google Cloud Console before"

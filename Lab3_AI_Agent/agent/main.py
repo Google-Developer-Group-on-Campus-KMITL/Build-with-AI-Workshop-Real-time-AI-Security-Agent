@@ -5,7 +5,6 @@ FastAPI application with Gemini Function Calling for autonomous threat response.
 
 import base64
 import datetime
-import hashlib
 import json
 import logging
 import os
@@ -26,7 +25,6 @@ from vertexai.generative_models import (
 PROJECT_ID = os.environ.get("GOOGLE_CLOUD_PROJECT", "your-project-id")
 LOCATION = os.environ.get("GOOGLE_CLOUD_REGION", "asia-southeast1")
 MODEL_NAME = "gemini-2.5-flash"
-ARMOR_POLICY = "ai-blocked-ips"
 
 logging.basicConfig(
     level=logging.INFO,
@@ -39,7 +37,7 @@ logger = logging.getLogger("ai-sec-agent")
 # ---------------------------------------------------------------------------
 vertexai.init(project=PROJECT_ID, location=LOCATION)
 db = firestore.Client(project=PROJECT_ID)
-armor_client = compute_v1.SecurityPoliciesClient()
+firewall_client = compute_v1.FirewallsClient()
 
 # ---------------------------------------------------------------------------
 # Gemini Agent — Function Calling Setup
@@ -60,9 +58,9 @@ AGENT_SYSTEM_INSTRUCTION = (
 block_ip_func = FunctionDeclaration(
     name="block_ip",
     description=(
-        "Block a malicious IP address by adding a deny rule to the "
-        "Cloud Armor firewall policy. Use this when you detect a clear "
-        "security threat that warrants blocking the source IP."
+        "Block a malicious IP address by creating a VPC firewall deny rule. "
+        "Use this when you detect a clear security threat that warrants "
+        "blocking the source IP."
     ),
     parameters={
         "type": "object",
@@ -97,38 +95,29 @@ app = FastAPI(title="AI Security Agent")
 # ---------------------------------------------------------------------------
 # Helper Functions
 # ---------------------------------------------------------------------------
-def ip_to_priority(ip: str) -> int:
-    """Convert an IP address to a deterministic Cloud Armor rule priority (1000–9999)."""
-    h = hashlib.md5(ip.encode()).hexdigest()
-    return 1000 + (int(h[:8], 16) % 9000)
-
-
 def execute_block_ip(ip_address: str, reason: str) -> dict:
-    """Add a deny(403) rule to the Cloud Armor policy for the given IP."""
-    priority = ip_to_priority(ip_address)
-    rule = compute_v1.SecurityPolicyRule(
-        action="deny(403)",
-        priority=priority,
-        match=compute_v1.SecurityPolicyRuleMatcher(
-            versioned_expr="SRC_IPS_V1",
-            config=compute_v1.SecurityPolicyRuleMatcherConfig(
-                src_ip_ranges=[ip_address],
-            ),
-        ),
+    """Create a VPC firewall deny-ingress rule for the given IP."""
+    rule_name = f"ai-block-{ip_address.replace('.', '-')}"
+    firewall_rule = compute_v1.Firewall(
+        name=rule_name,
+        network=f"projects/{PROJECT_ID}/global/networks/default",
+        direction="INGRESS",
+        priority=900,
+        source_ranges=[f"{ip_address}/32"],
+        denied=[compute_v1.Denied(I_p_protocol="all")],
         description=f"Blocked by AI Agent: {reason}"[:255],
     )
     try:
-        operation = armor_client.add_rule(
+        operation = firewall_client.insert(
             project=PROJECT_ID,
-            security_policy=ARMOR_POLICY,
-            security_policy_rule_resource=rule,
+            firewall_resource=firewall_rule,
         )
         operation.result()  # wait for completion
-        logger.info(f"Blocked IP {ip_address} (priority {priority})")
-        return {"status": "blocked", "ip": ip_address, "priority": priority}
+        logger.info(f"Blocked IP {ip_address} via firewall rule: {rule_name}")
+        return {"status": "blocked", "ip": ip_address, "rule": rule_name}
     except Exception as exc:
         if "already exists" in str(exc).lower():
-            logger.info(f"IP {ip_address} already blocked (priority {priority})")
+            logger.info(f"IP {ip_address} already blocked ({rule_name})")
             return {"status": "already_blocked", "ip": ip_address}
         logger.error(f"Failed to block {ip_address}: {exc}")
         return {"status": "error", "message": str(exc)}
