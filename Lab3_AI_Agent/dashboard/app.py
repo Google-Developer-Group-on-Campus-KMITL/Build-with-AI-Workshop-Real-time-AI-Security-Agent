@@ -110,7 +110,7 @@ def generate_analysis(model: GenerativeModel, events: list[dict]) -> str:
 # ---------------------------------------------------------------------------
 st.set_page_config(
     page_title="AI Security Dashboard",
-    page_icon="🛡️",
+    page_icon="",
     layout="wide",
 )
 
