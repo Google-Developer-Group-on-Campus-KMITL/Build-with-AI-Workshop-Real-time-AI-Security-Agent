@@ -7,7 +7,7 @@ from vertexai.generative_models import GenerativeModel
 
 PROJECT_ID = os.environ.get("GOOGLE_CLOUD_PROJECT", "your-project-id")
 LOCATION = "asia-southeast1"
-MODEL_NAME = "gemini-1.5-flash"
+MODEL_NAME = "gemini-2.5-flash"
 SAMPLE_FILE = "sample_packets.json" # Callback when no any arg in stdin
 
 # Zero-shot prompting
@@ -110,7 +110,7 @@ def main():
         print("[!] No packet records found. Exiting.", file=sys.stderr)
         sys.exit(1)
 
-    SELECTED_INSTRUCTION = FEW_SYSTEM_INSTRUCTION 
+    SELECTED_INSTRUCTION = ZERO_SYSTEM_INSTRUCTION 
     MODE_NAME = "FEW-SHOT" if SELECTED_INSTRUCTION == FEW_SYSTEM_INSTRUCTION else "ZERO-SHOT"
 
     print(f"[*] Mode: {MODE_NAME}")
